@@ -10,25 +10,41 @@ public class User{
 
     private String pseudo;
 
-    private ArrayList<User> listeUserActifs;
+    private ArrayList<Id> listeUserActifs;
 
     private String IpAddress ;
 
-    int port;
+    private int port_ecoute;
+    private int port_envoi;
 
+    Exception PseudoPasDispo = new Exception();
 
 
     private ArrayList<Conversation> ConversationSauvegardées ;
 
-    public User(String pseudo, ArrayList<User> listeUserActifs, String ipAddress, ArrayList<Conversation> conversationSauvegardées, int port) {
-        this.pseudo = pseudo;
+
+    public User(String pseudo, ArrayList<Id> listeUserActifs, String ipAddress, int port_ecoute, int port_envoi, ArrayList<Conversation> conversationSauvegardées) throws Exception {
         this.listeUserActifs = listeUserActifs;
+        if (this.listeUserActifs.contains(pseudo)) {
+            throw PseudoPasDispo;
+        } else {
+            this.pseudo = pseudo;
+        }
+
         IpAddress = ipAddress;
-        port= port;
+        this.port_ecoute = port_ecoute;
+        this.port_envoi = port_envoi;
         ConversationSauvegardées = conversationSauvegardées;
     }
 
-    
+    public void changerPseudo(String pseudo) throws Exception {
+        if (this.listeUserActifs.contains(pseudo)) {
+            throw PseudoPasDispo;
+        } else {
+            this.pseudo = pseudo;
+        }
+    }
+
     Thread listenForUser = new Thread(new Runnable() {
         @Override
         public void run() {
@@ -45,8 +61,6 @@ public class User{
             }
 
             String message = new String(paquet.getData(),0,paquet.getLength());
-
-
 
         }
     });
