@@ -28,10 +28,7 @@ public class User{
         ConversationSauvegardées = conversationSauvegardées;
     }
 
-
-
-
-
+    
     Thread listenForUser = new Thread(new Runnable() {
         @Override
         public void run() {
