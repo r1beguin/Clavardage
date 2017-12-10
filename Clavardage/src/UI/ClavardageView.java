@@ -1,6 +1,13 @@
 package UI;
+import DataController.*;
+
 import javax.swing.*;
 import java.awt.*;
+import java.lang.reflect.Array;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 
 import static java.awt.BorderLayout.*;
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
@@ -28,13 +35,18 @@ public class ClavardageView extends JFrame{
     private JPanel panelActif;
     private JLabel labelActif;
 
+    private JPanel panelDynamique;
     private JScrollPane scrollActif;
+
+
+
+    private HashMap<String,JLabel> tabLabelUser = new HashMap<String,JLabel>();
 
     public ClavardageView() throws HeadlessException {
 
         this.setTitle("Clavardage");
 
-        contentPane = new JPanel();
+        contentPane = new JPanel(new GridLayout(0,2));
         setContentPane(contentPane);
 
         panelUtilisateur = new JPanel(new GridLayout(0,1));
@@ -61,11 +73,12 @@ public class ClavardageView extends JFrame{
         panelActif = new JPanel(new GridLayout(0,1));
         panelActif.setBorder(BorderFactory.createEmptyBorder(0,0,50,0));
 
+        panelDynamique = new JPanel(new GridLayout(0,2));
+
+        scrollActif = new JScrollPane(panelDynamique,ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
 
         labelActif = new JLabel("Utilisateurs Actif :");
-
-
-        scrollActif = new JScrollPane();
 
 
         panelUtilisateur.add(imageOffline);
@@ -74,7 +87,7 @@ public class ClavardageView extends JFrame{
         panelUtilisateur.add(pseudoButton);
 
         panelActif.add(labelActif);
-        panelActif.add(scrollActif);
+        panelActif.add(panelDynamique);
 
 
         panelUser.add(panelActif,NORTH);
@@ -89,29 +102,83 @@ public class ClavardageView extends JFrame{
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
+    User newUser;
 
     public void modeConnecte(){
 
         this.imageOffline.setIcon(this.iconeOnline);
-        this.labelChoixPseudo.setText("Pseudo choisi : ...");
-        this.pseudoTextField.setText("...");
-        this.pseudoButton.setText("Changer pseudo");
 
-        ConversationView conversation = new ConversationView();
-        conversation.display();
+        String pseudochoisi = pseudoTextField.getText();
+        this.panelUtilisateur.remove(pseudoButton);
+        this.panelUtilisateur.remove(pseudoTextField);
+        this.panelUtilisateur.remove(labelChoixPseudo);
+        panelUtilisateur.revalidate();
+        panelUtilisateur.repaint();
 
+        JLabel nouveauPseudo = new JLabel("Votre pseudo : "+ pseudochoisi);
+        JLabel changePseudo = new JLabel("Changez de pseudo ici : ");
+        JTextField nouveauChamps = new JTextField("");
+        JButton nouveauPseudoBouton = new JButton("Changer de pseudo");
 
+        panelUtilisateur.add(nouveauPseudo);
+        panelUtilisateur.add(changePseudo);
+        panelUtilisateur.add(nouveauChamps);
+        panelUtilisateur.add(nouveauPseudoBouton);
+        panelUtilisateur.revalidate();
+
+        System.out.println(pseudochoisi);
+
+        try{
+            newUser = new User(pseudochoisi, InetAddress.getLocalHost().getHostAddress().toString());
+            newUser.listenForUser.start();
+            newUser.informuUser(true);
+
+        }
+        catch (Exception e){
+            System.out.println("Error getLocalHost");
+        }
 
     }
 
 
+
+    public void addUserActif(DataController.Id id){
+
+
+
+        String pseudo = id.getPseudo();
+
+        JLabel newUserActif = new JLabel(pseudo);
+        JButton newButtonActif = new JButton("Commencer conversation");
+
+        tabLabelUser.put(pseudo,newUserActif);
+
+        panelDynamique.add(newUserActif);
+        panelDynamique.add(newButtonActif);
+
+        panelDynamique.revalidate();
+        panelDynamique.repaint();
+
+        System.out.println("Ajout user actif");
+    }
+
+    public void deleteUserActif(DataController.Id id){
+
+        String pseudo = id.getPseudo();
+
+        if (tabLabelUser.containsKey(pseudo)){
+
+            panelActif.remove(tabLabelUser.get(pseudo));
+
+            tabLabelUser.remove(pseudo);
+
+        }
+
+    }
 
     public void afficherErreur(String message) {
         showMessageDialog(this, message, "Erreur", ERROR_MESSAGE);
     }
-
-
-
 
     public void display() {
         this.pack();

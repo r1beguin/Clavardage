@@ -4,14 +4,13 @@ public class Id {
 
     private String pseudo;
 
-    private String IpAddress ;
+    private String IpAddress;
 
-    private int port;
 
-    public Id(String pseudo, String ipAddress, int port) {
+    public Id(String pseudo, String ipAddress) {
         this.pseudo = pseudo;
         IpAddress = ipAddress;
-        this.port = port;
+
     }
 
     public String getPseudo() {
@@ -22,7 +21,6 @@ public class Id {
         return IpAddress;
     }
 
-    public int getPort() {
-        return port;
-    }
 }
+
+
